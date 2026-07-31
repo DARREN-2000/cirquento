@@ -109,36 +109,4 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: '1'
 
-  pages:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: [verify, eval-gate]
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Regenerate the console from a live run
-        run: |
-          make demo
-          make console
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Build React SPA
-        run: |
-          cd web
-          npm ci
-          npm run build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: web/dist
-      - id: deployment
-        uses: actions/deploy-pages@v4
+
