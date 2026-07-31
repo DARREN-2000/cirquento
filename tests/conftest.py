@@ -39,6 +39,13 @@ except ModuleNotFoundError:  # pragma: no cover
                 raise AssertionError(f"Expected {self._expected.__name__} but nothing was raised")
             return issubclass(exc_type, self._expected)
 
+    def importorskip(modname: str) -> Any:
+        try:
+            return __import__(modname)
+        except ImportError:
+            raise ModuleNotFoundError(f"No module named '{modname}'")
+
     shim.fixture = fixture  # type: ignore[attr-defined]
     shim.raises = _Raises  # type: ignore[attr-defined]
+    shim.importorskip = importorskip  # type: ignore[attr-defined]
     sys.modules["pytest"] = shim

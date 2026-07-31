@@ -1,3 +1,6 @@
+import pytest
+
+fastapi = pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient
 from cirquento.api.main import app
 from cirquento.api.config import get_settings

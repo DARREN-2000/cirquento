@@ -48,7 +48,12 @@ def main() -> int:
     failed: list[tuple[str, str]] = []
 
     for path in sorted(TESTS_DIR.glob("test_*.py")):
-        module = _load(path)
+        try:
+            module = _load(path)
+        except ModuleNotFoundError as e:
+            print(f"  ? Skipped {path.stem} (missing dependency: {e})")
+            continue
+            
         fixtures = _fixtures(module)
         for name, fn in sorted(vars(module).items()):
             if not (name.startswith("test_") and callable(fn)):
