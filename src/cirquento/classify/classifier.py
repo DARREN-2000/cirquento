@@ -20,7 +20,6 @@ import hashlib
 from dataclasses import dataclass
 from typing import Protocol
 
-from pydantic import BaseModel, Field, ValidationError
 
 from cirquento.classify.cache import ClassificationCache
 from cirquento.classify.taxonomy import Taxonomy, TaxonomyCode
@@ -31,19 +30,28 @@ from cirquento.observability import tracer
 CONFIDENCE_FLOOR = 0.72
 
 
-class MaterialProposal(BaseModel):
-    """What the model is allowed to return. Anything else is a hard failure."""
+try:
+    from pydantic import BaseModel, Field, ValidationError
 
-    code: TaxonomyCode | None = Field(
-        default=None, description="Closed-vocabulary material code, or null to abstain."
-    )
-    confidence: float = Field(ge=0.0, le=1.0)
-    evidence_span: str = Field(
-        default="",
-        max_length=240,
-        description="Verbatim substring of the input that justifies the code.",
-    )
-    reasoning: str = Field(default="", max_length=400)
+    class MaterialProposal(BaseModel):
+        """What the model is allowed to return. Anything else is a hard failure."""
+
+        code: TaxonomyCode | None = Field(
+            default=None, description="Closed-vocabulary material code, or null to abstain."
+        )
+        confidence: float = Field(ge=0.0, le=1.0)
+        evidence_span: str = Field(
+            default="",
+            max_length=240,
+            description="Verbatim substring of the input that justifies the code.",
+        )
+        reasoning: str = Field(default="", max_length=400)
+except ImportError:
+    # Zero-dependency offline fallback. The LLM is never called in this mode;
+    # all classifications are satisfied from the cache or deterministic rules.
+    BaseModel = object  # type: ignore
+    ValidationError = Exception  # type: ignore
+    class MaterialProposal: pass  # type: ignore
 
 
 @dataclass(frozen=True, slots=True)
