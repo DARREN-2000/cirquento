@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cirquento
+      POSTGRES_PASSWORD: cirquento
+      POSTGRES_DB: cirquento
+    ports: ['5432:5432']
+    volumes: ['pgdata:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cirquento']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      postgres: {condition: service_healthy}
+    environment:
+      CIRQUENTO_DATABASE_URL: postgresql+asyncpg://cirquento:cirquento@postgres:5432/cirquento
+      CIRQUENTO_DUCKDB_PATH: /data/cirquento.duckdb
+      CIRQUENTO_RULESET: rules/circularity.v3.yaml
+      # Offline mode replays cached classifications so the demo needs no API key.
+      CIRQUENTO_LLM_MODE: ${CIRQUENTO_LLM_MODE:-offline}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel:4317
+    ports: ['8000:8000']
+    volumes: ['lakehouse:/data']
+
+  console:
+    build: ./web
+    depends_on: [api]
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports: ['3000:3000']
+
+  otel:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    command: ['--config=/etc/otel.yaml']
+    volumes: ['./ops/otel.yaml:/etc/otel.yaml:ro']
+    ports: ['4317:4317']
+
+volumes:
+  pgdata:
+  lakehouse:

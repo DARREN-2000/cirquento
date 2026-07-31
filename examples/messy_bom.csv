@@ -1,0 +1,13 @@
+Item No;Top Material;Parent Description;Materialbeschreibung;Gewicht;Rezyklatanteil;Verbindung;Lieferant;SVHC
+L-0001;BR-2210-A;Bracket assembly;Aluminium profile EN AW-6060 extruded;1.240;35%;screw;S-040;
+L-0002;BR-2210-A;Bracket assembly;Stainless 1.4301 fastener M6;0,048;0,12;screw;S-001;
+L-0003;BR-2210-A;Bracket assembly;PA66-GF30 clip housing;0,215;;clip;S-020;
+L-0004;BR-2210-A;Bracket assembly;Copper wire harness 2.5mm2;0,410;0,55;screw;S-001;
+L-0005;BR-2210-A;Bracket assembly;Epoxy potting compound, two-part;0,090;0;potting;S-010;SVHC.BPA
+L-0006;BR-2210-A;Bracket assembly;;0,120;0,20;screw;S-001;
+L-0007;BR-2210-A;Bracket assembly;Zinc-plated steel washer;n/a;0,30;screw;S-001;
+L-0008;BR-2210-A;Bracket assembly;ABS cover panel;0,330;350;clip;S-020;
+L-0009;BR-2210-A;Bracket assembly;PCB assembly, 4-layer FR4;0,175;0,05;adhesive;S-030;SVHC.LEAD_COMPOUNDS
+L-0010;BR-2210-A;Bracket assembly;Aluminium die-cast housing;2.150,00;0,42;screw;S-040;
+L-0011;BR-2210-A;Bracket assembly;Polypropylene talc-filled bracket;0,275;-0,1;clip;S-020;
+L-0012;BR-2210-A;Bracket assembly;Carbon fibre reinforced panel;0,660;unknown;adhesive;S-030;

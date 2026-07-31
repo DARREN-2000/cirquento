@@ -1,0 +1,39 @@
+# Pipeline outputs. Everything here is reproducible with `make verify`, so it
+# is deliberately not committed: a stale run_output.json in git is a lie that
+# outlives the code that produced it.
+.data/
+*.pdf
+*.seal.json
+
+# NOT ignored, on purpose:
+#   docs/data.js  - generated, but committed so GitHub Pages can serve the
+#                   console without a build step. CI regenerates it and fails
+#                   on `git diff --exit-code`, which is what keeps the
+#                   published numbers honest.
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets. The seal key is injected at runtime and must never be committed;
+# a committed HMAC key makes every seal in the repo forgeable.
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

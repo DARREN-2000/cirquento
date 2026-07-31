@@ -1,0 +1,36 @@
+{"description": "ALU EXTR 6060-T6 ANOD housing profile", "label": "MET.ALU.WROUGHT"}
+{"description": "Aluminium extrusion EN AW-6082 rail", "label": "MET.ALU.WROUGHT"}
+{"description": "EN AW-6060 profile, mill finish", "label": "MET.ALU.WROUGHT"}
+{"description": "Aluminum extrusion bar, 2m", "label": "MET.ALU.WROUGHT"}
+{"description": "ALDC12 die cast aluminium end cap", "label": "MET.ALU.CAST"}
+{"description": "Die cast aluminium bracket, painted", "label": "MET.ALU.CAST"}
+{"description": "S235JR steel mounting plate", "label": "MET.STEEL.CARBON"}
+{"description": "DC01 cold rolled steel shim", "label": "MET.STEEL.CARBON"}
+{"description": "Steel washer, zinc plated", "label": "MET.STEEL.CARBON"}
+{"description": "Stainless 1.4301 fastener M6", "label": "MET.STEEL.STAINLESS"}
+{"description": "AISI 304 clamp ring", "label": "MET.STEEL.STAINLESS"}
+{"description": "Stainless steel spring clip", "label": "MET.STEEL.STAINLESS"}
+{"description": "Cu-ETP copper wire harness 2.5mm2", "label": "MET.CU.WIRE"}
+{"description": "Copper wire, tinned, 4mm2", "label": "MET.CU.WIRE"}
+{"description": "Cable harness, copper conductor", "label": "MET.CU.WIRE"}
+{"description": "PA66-GF30 connector body", "label": "POL.PA66.GF30"}
+{"description": "PA66 GF30 housing, black", "label": "POL.PA66.GF30"}
+{"description": "Polyamide 66 glass filled clip", "label": "POL.PA66.GF30"}
+{"description": "PA66-GF30 clip-retained potting replacement gasket", "label": "POL.PA66.GF30"}
+{"description": "PP-T20 cover, talc filled", "label": "POL.PP.TALC"}
+{"description": "Polypropylene cover, 20% talc", "label": "POL.PP.TALC"}
+{"description": "PC/ABS bezel, flame retardant", "label": "POL.PC.ABS"}
+{"description": "PC/ABS trim panel", "label": "POL.PC.ABS"}
+{"description": "Epoxy potting compound, power stage", "label": "THERMOSET.EPOXY"}
+{"description": "Epoxy adhesive, two component", "label": "THERMOSET.EPOXY"}
+{"description": "Potting resin for power module", "label": "THERMOSET.EPOXY"}
+{"description": "PCB assembly, 6-layer control board", "label": "ELEC.PCBA"}
+{"description": "PCB assembly, 6-layer control board, clip-retained", "label": "ELEC.PCBA"}
+{"description": "PCBA gate driver, conformal coated", "label": "ELEC.PCBA"}
+{"description": "MOSFET power module TO-247", "label": "ELEC.SEMI"}
+{"description": "Semiconductor diode, SiC", "label": "ELEC.SEMI"}
+{"description": "Carbon fibre reinforced panel", "label": "COMPOSITE.CFRP"}
+{"description": "SPEZTL-KOMP 44/B ers. 21.09", "label": null}
+{"description": "Baugruppe kpl. n. Zeichnung 4470-2", "label": null}
+{"description": "Pos. 44 gem. ZG 8812/2 rev C", "label": null}
+{"description": "Sonderteil n. Muster, freigegeben KW32", "label": null}

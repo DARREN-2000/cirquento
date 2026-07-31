@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Cirquento — Circularity Intelligence Console</title>
+<style>
+  :root{
+    --canvas:#FFFFFF; --soft:#F9F8F7; --surface2:#F0EFED; --border:#E6E5E3;
+    --text:#2C2C2B; --muted:#7D7A75;
+    --blue:#2783DE; --blue-soft:#E5F2FC;
+    --green:#46A171; --green-soft:#E8F1EC;
+    --orange:#D5803B; --orange-soft:#FBEBDE;
+    --red:#E56458; --red-soft:#FCE9E7;
+    --radius:8px;
+    --shadow:0 1px 2px rgba(0,0,0,.05), 0 4px 12px rgba(0,0,0,.04);
+    --mono:"Menlo","Consolas",monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --canvas:#191919; --soft:#202020; --surface2:#383836; --border:rgba(255,255,255,.20);
+      --text:#FFFFFF; --muted:rgba(255,255,255,.65);
+      --blue:#5E9FE8; --blue-soft:rgba(94,159,232,.12);
+      --green:#72BC8F; --green-soft:rgba(114,188,143,.12);
+      --orange:#DE9255; --orange-soft:rgba(222,146,85,.12);
+      --red:#E97366; --red-soft:rgba(233,115,102,.12);
+      --shadow:none;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--canvas); color:var(--text);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 32px 64px}
+
+  /* ---------- top bar ---------- */
+  .topbar{display:flex;align-items:center;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
+  .mark{width:26px;height:26px;flex:0 0 26px}
+  .brand small{display:block;font-weight:400;font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav button{
+    font:inherit;font-size:14px;color:var(--muted);background:none;border:1px solid transparent;
+    padding:8px 12px;border-radius:var(--radius);cursor:pointer;min-height:36px;
+  }
+  .nav button:hover{background:var(--soft);color:var(--text)}
+  .nav button[aria-current="true"]{background:var(--surface2);color:var(--text);font-weight:500}
+  .nav button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+  /* ---------- hero row ---------- */
+  .head{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;margin:32px 0 24px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:15px;margin:0;max-width:60ch}
+  .runpill{
+    margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);
+    border:1px solid var(--border);border-radius:999px;padding:6px 12px;background:var(--soft);white-space:nowrap;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+  /* ---------- kpi ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .kpi{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--canvas)}
+  .kpi .label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .kpi .val{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-top:8px;display:flex;align-items:baseline;gap:6px}
+  .kpi .val span{font-size:13px;font-weight:500}
+  .up{color:var(--green)} .down{color:var(--red)} .warn{color:var(--orange)}
+  .kpi .foot{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-top:16px}
+  .card{border:1px solid var(--border);border-radius:var(--radius);background:var(--canvas);overflow:hidden}
+  .card > header{padding:16px 20px 0;display:flex;align-items:center;gap:10px}
+  .card h2{font-size:15px;margin:0;font-weight:600;letter-spacing:-.01em}
+  .card header .hint{margin-left:auto;font-size:12px;color:var(--muted)}
+  .card .body{padding:16px 20px 20px}
+
+  .tag{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:500;white-space:nowrap;border:1px solid transparent}
+  .t-blue{background:var(--blue-soft);color:var(--blue)}
+  .t-green{background:var(--green-soft);color:var(--green)}
+  .t-orange{background:var(--orange-soft);color:var(--orange)}
+  .t-red{background:var(--red-soft);color:var(--red)}
+  .t-grey{background:var(--surface2);color:var(--muted)}
+
+  /* ---------- passport ---------- */
+  .pp{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .score{position:relative;width:132px;height:132px;flex:0 0 132px}
+  .score .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score .num b{font-size:30px;letter-spacing:-.02em;line-height:1}
+  .score .num i{font-style:normal;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+  .breakdown{flex:1;min-width:240px;display:grid;gap:10px}
+  .brow{display:grid;grid-template-columns:152px 1fr 46px;align-items:center;gap:10px;font-size:13px}
+  .brow .n{color:var(--muted)}
+  .bar{height:7px;border-radius:4px;background:var(--surface2);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:4px}
+  .brow .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+
+  /* ---------- table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500;padding:0 8px 8px 0;border-bottom:1px solid var(--border)}
+  td{padding:11px 8px 11px 0;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .supplier{display:flex;align-items:center;gap:9px}
+  .av{width:24px;height:24px;border-radius:6px;background:var(--surface2);display:grid;place-items:center;font-size:10px;font-weight:600;color:var(--muted);flex:0 0 24px}
+  .scroll{overflow-x:auto}
+
+  /* ---------- lineage ---------- */
+  .lineage{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .stage{flex:1;min-width:132px;border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--soft)}
+  .stage b{display:block;font-size:13px;margin-bottom:2px}
+  .stage span{font-size:11px;color:var(--muted);display:block}
+  .stage .st{margin-top:8px;display:inline-block}
+  .arrow{align-self:center;color:var(--muted);flex:0 0 auto;font-size:13px}
+
+  /* ---------- evidence ---------- */
+  .ev{border:1px solid var(--border);border-radius:var(--radius);padding:14px;background:var(--soft);font-size:13px}
+  .ev p{margin:0 0 10px}
+  .ev code{font-family:var(--mono);font-size:12px;background:var(--canvas);border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+  .cites{display:flex;flex-wrap:wrap;gap:6px}
+  .cite{font-family:var(--mono);font-size:11px;border:1px solid var(--border);background:var(--canvas);border-radius:999px;padding:3px 9px;color:var(--muted)}
+
+  .foot{margin-top:32px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+
+  @media (max-width:900px){
+    .wrap{padding:20px 20px 48px}
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .grid{grid-template-columns:1fr}
+    h1{font-size:25px}
+    .runpill{margin-left:0}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .bar i, .ring{transition:all .4s ease}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="13" fill="none" stroke="var(--border)" stroke-width="3"/>
+        <path d="M16 3a13 13 0 0 1 11.3 19.4" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="4.2" fill="var(--green)"/>
+      </svg>
+      <div>Cirquento<small>Circularity intelligence</small></div>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <button aria-current="true">Passports</button>
+      <button>Materials</button>
+      <button>Suppliers</button>
+      <button>Pipelines</button>
+      <button>Evidence</button>
+    </nav>
+  </div>
+
+  <div class="head">
+    <div>
+      <h1 id="title">—</h1>
+      <p class="sub" id="subtitle">—</p>
+    </div>
+    <div class="runpill"><span class="dot"></span> <span id="runpill">—</span></div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+
+    <section class="card">
+      <header><h2>Passport readiness</h2><span class="hint">ESPR / EN 18223 field groups</span></header>
+      <div class="body pp" style="align-items:flex-start">
+        <div class="score">
+          <svg viewBox="0 0 120 120" width="132" height="132" role="img" aria-label="Circularity score 68 out of 100">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface2)" stroke-width="12"/>
+            <circle class="ring" cx="60" cy="60" r="50" fill="none" stroke="var(--blue)" stroke-width="12"
+                    stroke-linecap="round" stroke-dasharray="213 314" transform="rotate(-90 60 60)"/>
+          </svg>
+          <div class="num"><b id="ringScore">—</b><i>score</i></div>
+        </div>
+        <div class="breakdown" id="breakdown"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header><h2 id="whyTitle">Why?</h2><span class="hint">derived from the rule engine</span></header>
+      <div class="body">
+        <div class="ev" id="why"></div>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1 / -1" id="recCard" hidden>
+      <header><h2>What to change next</h2><span class="hint">counterfactuals re-scored by the engine, not model advice</span></header>
+      <div class="body">
+        <div id="recs"></div>
+        <p class="hint" style="margin:12px 0 0">Each delta is the score the engine returns when the
+        change is applied to the real BOM. Items marked <span class="tag t-orange">conditional</span>
+        depend on a supplier producing evidence, so the gain is modelled at that supplier's own
+        evidenced rate and is not yet earned.</p>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1 / -1" id="reviewCard" hidden>
+      <header><h2>Human review queue</h2><span class="hint">what the classifier refused to guess</span></header>
+      <div class="body">
+        <div id="reviewBody"></div>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1 / -1">
+      <header><h2>Supplier signals</h2><span class="hint">ranked by circularity exposure × spend</span></header>
+      <div class="body scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Supplier</th><th>Dominant part</th><th class="num">Spend</th>
+              <th class="num">Recycled</th><th class="num">Evidence</th><th>Data quality</th><th>Signal</th>
+            </tr>
+          </thead>
+          <tbody id="suppliers"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1 / -1">
+      <header><h2>Pipeline lineage</h2><span class="hint">every run is replayable and idempotent</span></header>
+      <div class="body">
+        <div class="lineage">
+          <div class="stage"><b>Ingest</b><span>SAP MARA · MAST · BOM CSV</span><span class="tag t-green st" id="stIngest">—</span></div>
+          <div class="arrow">→</div>
+          <div class="stage"><b>Bronze</b><span>raw, hashed, immutable</span><span class="tag t-green st" id="stBronze">—</span></div>
+          <div class="arrow">→</div>
+          <div class="stage"><b>Resolve</b><span>supplier entity match</span><span class="tag t-blue st" id="stResolve">—</span></div>
+          <div class="arrow">→</div>
+          <div class="stage"><b>Classify</b><span>LLM → schema, then rules</span><span class="tag t-orange st" id="stClassify">—</span></div>
+          <div class="arrow">→</div>
+          <div class="stage"><b>Score</b><span>deterministic rule engine</span><span class="tag t-green st" id="stScore">—</span></div>
+          <div class="arrow">→</div>
+          <div class="stage"><b>Passport</b><span>JSON-LD + content hash</span><span class="tag t-green st" id="stPassport">—</span></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="foot">
+    <span>Cirquento v0.4</span>
+    <span>FastAPI · DuckDB · Postgres · OpenTelemetry</span>
+    <span id="provenance">—</span>
+  </div>
+</div>
+
+<script>
+// GENERATED by scripts/export_console_data.py — do not edit by hand.
+// Every figure below came out of an executed pipeline run.
+window.CIRQUENTO_DATA = {
+  "comparison": {
+    "delta": 7,
+    "disassembly": 30,
+    "productId": "CM-4470-C",
+    "score": 45.0
+  },
+  "composition": [
+    {
+      "code": "MET.ALU.WROUGHT",
+      "pct": 56.36
+    },
+    {
+      "code": "MET.STEEL.CARBON",
+      "pct": 15.11
+    },
+    {
+      "code": "UNCLASSIFIED",
+      "pct": 8.43
+    },
+    {
+      "code": "POL.PP.TALC",
+      "pct": 5.4
+    },
+    {
+      "code": "MET.CU.WIRE",
+      "pct": 4.65
+    },
+    {
+      "code": "THERMOSET.EPOXY",
+      "pct": 3.69
+    },
+    {
+      "code": "ELEC.PCBA",
+      "pct": 2.08
+    },
+    {
+      "code": "POL.PA66.GF30",
+      "pct": 1.65
+    },
+    {
+      "code": "POL.PC.ABS",
+      "pct": 1.44
+    },
+    {
+      "code": "ELEC.SEMI",
+      "pct": 0.63
+    },
+    {
+      "code": "MET.STEEL.STAINLESS",
+      "pct": 0.58
+    }
+  ],
+  "dimensions": [
+    {
+      "findings": [
+        "104 component(s) have no recycled-content evidence and are counted as 0%."
+      ],
+      "name": "Recycled content",
+      "value": 44,
+      "weight": 0.3
+    },
+    {
+      "findings": [
+        "51 line(s) could not be classified and score 0% recyclable."
+      ],
+      "name": "Recyclability",
+      "value": 78,
+      "weight": 0.3
+    },
+    {
+      "findings": [
+        "Line L0011: 'potting' joint is not reversibly separable.",
+        "Line L0012: 'adhesive' joint is not reversibly separable.",
+        "Line L0013: 'weld' joint is not reversibly separable.",
+        "Line L0014: 'adhesive' joint is not reversibly separable.",
+        "Line L0016: 'rivet' joint is not reversibly separable.",
+        "Line L0027: 'potting' joint is not reversibly separable.",
+        "Line L0028: 'adhesive' joint is not reversibly separable.",
+        "Line L0029: 'weld' joint is not reversibly separable.",
+        "Line L0030: 'adhesive' joint is not reversibly separable.",
+        "Line L0032: 'rivet' joint is not reversibly separable.",
+        "Line L0043: 'potting' joint is not reversibly separable.",
+        "Line L0044: 'adhesive' joint is not reversibly separable.",
+        "Line L0045: 'weld' joint is not reversibly separable.",
+        "Line L0046: 'adhesive' joint is not reversibly separable.",
+        "Line L0048: 'rivet' joint is not reversibly separable.",
+        "Line L0059: 'potting' joint is not reversibly separable.",
+        "Line L0060: 'adhesive' joint is not reversibly separable.",
+        "Line L0061: 'weld' joint is not reversibly separable.",
+        "Line L0062: 'adhesive' joint is not reversibly separable.",
+        "Line L0064: 'rivet' joint is not reversibly separable.",
+        "Line L0075: 'potting' joint is not reversibly separable.",
+        "Line L0076: 'adhesive' joint is not reversibly separable.",
+        "Line L0077: 'weld' joint is not reversibly separable.",
+        "Line L0078: 'adhesive' joint is not reversibly separable.",
+        "Line L0080: 'rivet' joint is not reversibly separable.",
+        "Line L0091: 'potting' joint is not reversibly separable.",
+        "Line L0092: 'adhesive' joint is not reversibly separable.",
+        "Line L0093: 'weld' joint is not reversibly separable.",
+        "Line L0094: 'adhesive' joint is not reversibly separable.",
+        "Line L0096: 'rivet' joint is not reversibly separable.",
+        "Line L0107: 'potting' joint is not reversibly separable.",
+        "Line L0108: 'adhesive' joint is not reversibly separable.",
+        "Line L0109: 'weld' joint is not reversibly separable.",
+        "Line L0110: 'adhesive' joint is not reversibly separable.",
+        "Line L0112: 'rivet' joint is not reversibly separable.",
+        "Line L0123: 'potting' joint is not reversibly separable.",
+        "Line L0124: 'adhesive' joint is not reversibly separable.",
+        "Line L0125: 'weld' joint is not reversibly separable.",
+        "Line L0126: 'adhesive' joint is not reversibly separable.",
+        "Line L0128: 'rivet' joint is not reversibly separable.",
+        "Line L0139: 'potting' joint is not reversibly separable.",
+        "Line L0140: 'adhesive' joint is not reversibly separable.",
+        "Line L0141: 'weld' joint is not reversibly separable.",
+        "Line L0142: 'adhesive' joint is not reversibly separable.",
+        "Line L0144: 'rivet' joint is not reversibly separable.",
+        "Line L0155: 'potting' joint is not reversibly separable.",
+        "Line L0156: 'adhesive' joint is not reversibly separable.",
+        "Line L0157: 'weld' joint is not reversibly separable.",
+        "Line L0158: 'adhesive' joint is not reversibly separable.",
+        "Line L0160: 'rivet' joint is not reversibly separable.",
+        "Line L0171: 'potting' joint is not reversibly separable.",
+        "Line L0172: 'adhesive' joint is not reversibly separable.",
+        "Line L0173: 'weld' joint is not reversibly separable.",
+        "Line L0174: 'adhesive' joint is not reversibly separable.",
+        "Line L0176: 'rivet' joint is not reversibly separable.",
+        "Line L0187: 'potting' joint is not reversibly separable.",
+        "Line L0188: 'adhesive' joint is not reversibly separable.",
+        "Line L0189: 'weld' joint is not reversibly separable.",
+        "Line L0190: 'adhesive' joint is not reversibly separable.",
+        "Line L0192: 'rivet' joint is not reversibly separable.",
+        "Line L0203: 'potting' joint is not reversibly separable.",
+        "Line L0204: 'adhesive' joint is not reversibly separable.",
+        "Line L0205: 'weld' joint is not reversibly separable.",
+        "Line L0206: 'adhesive' joint is not reversibly separable.",
+        "Line L0208: 'rivet' joint is not reversibly separable.",
+        "Line L0219: 'potting' joint is not reversibly separable.",
+        "Line L0220: 'adhesive' joint is not reversibly separable.",
+        "Line L0221: 'weld' joint is not reversibly separable.",
+        "Line L0222: 'adhesive' joint is not reversibly separable.",
+        "Line L0224: 'rivet' joint is not reversibly separable.",
+        "Line L0235: 'potting' joint is not reversibly separable.",
+        "Line L0236: 'adhesive' joint is not reversibly separable.",
+        "Line L0237: 'weld' joint is not reversibly separable.",
+        "Line L0238: 'adhesive' joint is not reversibly separable.",
+        "Line L0240: 'rivet' joint is not reversibly separable.",
+        "Line L0251: 'potting' joint is not reversibly separable.",
+        "Line L0252: 'adhesive' joint is not reversibly separable.",
+        "Line L0253: 'weld' joint is not reversibly separable.",
+        "Line L0254: 'adhesive' joint is not reversibly separable.",
+        "Line L0256: 'rivet' joint is not reversibly separable.",
+        "Line L0267: 'potting' joint is not reversibly separable.",
+        "Line L0268: 'adhesive' joint is not reversibly separable.",
+        "Line L0269: 'weld' joint is not reversibly separable.",
+        "Line L0270: 'adhesive' joint is not reversibly separable.",
+        "Line L0272: 'rivet' joint is not reversibly separable."
+      ],
+      "name": "Disassembly",
+      "value": 5,
+      "weight": 0.25
+    },
+    {
+      "findings": [
+        "Line L0010: substance of concern 'SVHC.BPA'.",
+        "Line L0014: substance of concern 'RoHS.CR6'.",
+        "Line L0026: substance of concern 'SVHC.BPA'.",
+        "Line L0030: substance of concern 'RoHS.CR6'.",
+        "Line L0042: substance of concern 'SVHC.BPA'.",
+        "Line L0046: substance of concern 'RoHS.CR6'.",
+        "Line L0058: substance of concern 'SVHC.BPA'.",
+        "Line L0062: substance of concern 'RoHS.CR6'.",
+        "Line L0074: substance of concern 'SVHC.BPA'.",
+        "Line L0078: substance of concern 'RoHS.CR6'.",
+        "Line L0090: substance of concern 'SVHC.BPA'.",
+        "Line L0094: substance of concern 'RoHS.CR6'.",
+        "Line L0106: substance of concern 'SVHC.BPA'.",
+        "Line L0110: substance of concern 'RoHS.CR6'.",
+        "Line L0122: substance of concern 'SVHC.BPA'.",
+        "Line L0126: substance of concern 'RoHS.CR6'.",
+        "Line L0138: substance of concern 'SVHC.BPA'.",
+        "Line L0142: substance of concern 'RoHS.CR6'.",
+        "Line L0154: substance of concern 'SVHC.BPA'.",
+        "Line L0158: substance of concern 'RoHS.CR6'.",
+        "Line L0170: substance of concern 'SVHC.BPA'.",
+        "Line L0174: substance of concern 'RoHS.CR6'.",
+        "Line L0186: substance of concern 'SVHC.BPA'.",
+        "Line L0190: substance of concern 'RoHS.CR6'.",
+        "Line L0202: substance of concern 'SVHC.BPA'.",
+        "Line L0206: substance of concern 'RoHS.CR6'.",
+        "Line L0218: substance of concern 'SVHC.BPA'.",
+        "Line L0222: substance of concern 'RoHS.CR6'.",
+        "Line L0234: substance of concern 'SVHC.BPA'.",
+        "Line L0238: substance of concern 'RoHS.CR6'.",
+        "Line L0250: substance of concern 'SVHC.BPA'.",
+        "Line L0254: substance of concern 'RoHS.CR6'.",
+        "Line L0266: substance of concern 'SVHC.BPA'.",
+        "Line L0270: substance of concern 'RoHS.CR6'."
+      ],
+      "name": "Substances",
+      "value": 0,
+      "weight": 0.15
+    }
+  ],
+  "evidenceSample": [
+    {
+      "detail": "ALU EXTR 6060-T6 ANOD housing profile",
+      "kind": "bom_line",
+      "locator": "bom_line:L0001"
+    },
+    {
+      "detail": "ALU EXTR 6060-T6 ANOD housing profile",
+      "kind": "bom_line",
+      "locator": "bom_line:L0002"
+    },
+    {
+      "detail": "Aluminium extrusion EN AW-6082 rail",
+      "kind": "bom_line",
+      "locator": "bom_line:L0003"
+    }
+  ],
+  "explanation": "Score 38/100 under ruleset circularity.v3. Held back by substances: Line L0010: substance of concern 'SVHC.BPA'.",
+  "kpis": {
+    "classifiedPct": 82,
+    "missingRecycled": 104,
+    "openGaps": 51,
+    "recycledContent": 44,
+    "score": 38
+  },
+  "product": {
+    "contentHash": "a1c71c551661",
+    "id": "CM-4470-B",
+    "lines": 280,
+    "massKg": 100.1916,
+    "name": "EV charge module",
+    "rulesetVersion": "circularity.v3",
+    "score": 38.0
+  },
+  "recommendations": [
+    {
+      "action": "Replace all non-separable joints with 'screw'",
+      "conditional": false,
+      "delta": 21.0,
+      "kind": "design",
+      "linesAffected": 85,
+      "rationale": "Disassembly is a minimum over joints, so partial fixes can score identically to no fix. This is the bundle that actually lifts the floor.",
+      "scoreAfter": 59.0,
+      "scoreBefore": 38.0,
+      "target": "all joints below the separability floor"
+    },
+    {
+      "action": "Replace every 'potting' joint with 'screw'",
+      "conditional": false,
+      "delta": 4.0,
+      "kind": "design",
+      "linesAffected": 17,
+      "rationale": "17 line(s) use 'potting', which scores 5/100 against a separability floor of 50. Disassembly is scored as a minimum, so these lines cap the whole assembly.",
+      "scoreAfter": 42.0,
+      "scoreBefore": 38.0,
+      "target": "potting"
+    },
+    {
+      "action": "Request recycled-content evidence from supplier S-003",
+      "conditional": true,
+      "delta": 1.0,
+      "kind": "evidence",
+      "linesAffected": 44,
+      "rationale": "44 line(s) from S-003 have no recycled-content evidence and are scored at 0%. Their evidenced lines average 45%. This is an upside IF the evidence arrives and confirms that rate \u2014 the score does not move until it does.",
+      "scoreAfter": 39.0,
+      "scoreBefore": 38.0,
+      "target": "S-003"
+    }
+  ],
+  "review": {
+    "items": [
+      {
+        "id": "clas-7f927e01ba3c",
+        "kind": "classification",
+        "status": "resolved",
+        "subject": "Baugruppe kpl. n. Zeichnung 4470-2"
+      },
+      {
+        "id": "clas-f881f4bd7274",
+        "kind": "classification",
+        "status": "open",
+        "subject": "SPEZTL-KOMP 44/B ers. 21.09"
+      },
+      {
+        "id": "clas-d744679c10b5",
+        "kind": "classification",
+        "status": "resolved",
+        "subject": "Thermal interface pad, silicone"
+      }
+    ],
+    "open": 1,
+    "resolved": 2
+  },
+  "run": {
+    "bomLines": 812,
+    "cached": 185,
+    "deterministic": 627,
+    "distinctRowKeys": 812,
+    "hash": "5b9c9b2012ff",
+    "mergeDetail": [
+      "S-001=S-002 (identifier)",
+      "S-010=S-011 (identifier)",
+      "S-020=S-021 (fuzzy)"
+    ],
+    "merges": 3,
+    "model": 0,
+    "review": 135
+  },
+  "suppliers": [
+    {
+      "coverage": "17%",
+      "initials": "NM",
+      "mergedFrom": [],
+      "name": "Nord Metall",
+      "part": "Baugruppe kpl. n. Zeichnung 4470-2",
+      "quality": "Secondary \u00b7 unmatched",
+      "qualityTone": "t-orange",
+      "recycled": "34%",
+      "signal": "Request evidence",
+      "signalTone": "t-orange",
+      "spend": "\u20ac4.73M"
+    },
+    {
+      "coverage": "93%",
+      "initials": "NG",
+      "mergedFrom": [
+        "S-002"
+      ],
+      "name": "Nordmetall GmbH",
+      "part": "S235JR steel mounting plate",
+      "quality": "Primary \u00b7 verified",
+      "qualityTone": "t-green",
+      "recycled": "63%",
+      "signal": "Preferred",
+      "signalTone": "t-green",
+      "spend": "\u20ac3.66M"
+    },
+    {
+      "coverage": "53%",
+      "initials": "KS",
+      "mergedFrom": [
+        "S-021"
+      ],
+      "name": "Kunststofftechnik S\u00fcd AG",
+      "part": "PP-T20 cover, talc filled",
+      "quality": "Primary \u00b7 unverified",
+      "qualityTone": "t-blue",
+      "recycled": "16%",
+      "signal": "Monitor",
+      "signalTone": "t-grey",
+      "spend": "\u20ac3.29M"
+    },
+    {
+      "coverage": "48%",
+      "initials": "SP",
+      "mergedFrom": [],
+      "name": "Shenzhen Powerlink Electronics",
+      "part": "Cu-ETP copper wire harness 2.5mm2",
+      "quality": "Proxy \u00b7 industry avg",
+      "qualityTone": "t-grey",
+      "recycled": "19%",
+      "signal": "Monitor",
+      "signalTone": "t-grey",
+      "spend": "\u20ac3.11M"
+    },
+    {
+      "coverage": "89%",
+      "initials": "AP",
+      "mergedFrom": [],
+      "name": "Alu Profile Werke",
+      "part": "ALU EXTR 6060-T6 ANOD housing profile",
+      "quality": "Primary \u00b7 verified",
+      "qualityTone": "t-green",
+      "recycled": "57%",
+      "signal": "Preferred",
+      "signalTone": "t-green",
+      "spend": "\u20ac1.14M"
+    },
+    {
+      "coverage": "97%",
+      "initials": "HS",
+      "mergedFrom": [
+        "S-011"
+      ],
+      "name": "Hexion Speciality Chemicals",
+      "part": "Epoxy potting compound, power stage",
+      "quality": "Primary \u00b7 SDS only",
+      "qualityTone": "t-orange",
+      "recycled": "0%",
+      "signal": "Blocks recycling",
+      "signalTone": "t-red",
+      "spend": "\u20ac1.03M"
+    }
+  ]
+};
+</script>
+<script>
+  // Everything below renders from window.CIRQUENTO_DATA, which is generated by
+  // scripts/export_console_data.py from an executed pipeline run. No figure on
+  // this page is written by hand — that is the point.
+  (function(){
+    var D = window.CIRQUENTO_DATA;
+    if (!D) { return; }
+    var $ = function(id){ return document.getElementById(id); };
+    var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+
+    $('title').textContent = D.product.name + ' · ' + D.product.id;
+    $('subtitle').textContent = 'Digital Product Passport built from ' + D.run.bomLines +
+      ' BOM lines across 4 products, ' + D.product.lines + ' of them on this product (' +
+      D.product.massKg.toFixed(1) + ' kg). Every field is traceable to a source row.';
+    $('runpill').textContent = 'run ' + D.run.hash + ' · ruleset ' + D.product.rulesetVersion +
+      ' · ' + D.run.distinctRowKeys + '/' + D.run.bomLines + ' rows keyed';
+
+    // KPIs. "Classified" and "unclassified" are shown together deliberately:
+    // a coverage number without its gap is marketing, not evidence.
+    var tone = function(v){ return v >= 70 ? '' : (v >= 40 ? '' : ' warn'); };
+    var k = D.kpis;
+    $('kpis').innerHTML = [
+      ['Circularity score', k.score, '', 'ruleset ' + D.product.rulesetVersion,
+       D.comparison ? '▲ ' + D.comparison.delta + ' as ' + D.comparison.productId : ''],
+      ['Recycled content', k.recycledContent, '%', k.missingRecycled + ' lines lack evidence, counted as 0%', ''],
+      ['Lines classified', k.classifiedPct, '%', D.run.deterministic + ' by rule, ' + D.run.cached + ' cached, ' + D.run.model + ' by model', ''],
+      ['Unclassified lines', k.openGaps, '', 'held for human review, never guessed', '']
+    ].map(function(r){
+      return '<div class="kpi"><div class="label">' + esc(r[0]) + '</div>' +
+        '<div class="val' + (r[0] === 'Unclassified lines' ? ' warn' : '') + '">' + esc(r[1]) +
+        (r[2] ? '<span>' + r[2] + '</span>' : '') +
+        (r[4] ? '<span class="up">' + esc(r[4]) + '</span>' : '') +
+        '</div><div class="foot">' + esc(r[3]) + '</div></div>';
+    }).join('');
+
+    // Score ring, driven by the same number as the centre label.
+    var c = 2 * Math.PI * 50;
+    document.querySelector('.ring').setAttribute(
+      'stroke-dasharray', (c * D.product.score / 100).toFixed(1) + ' ' + c.toFixed(1));
+    $('ringScore').textContent = Math.round(D.product.score);
+    document.querySelector('.score svg').setAttribute(
+      'aria-label', 'Circularity score ' + Math.round(D.product.score) + ' out of 100');
+
+    // Dimension bars carry their weight, because a 5/100 on a 25%-weighted
+    // dimension is a different conversation from one weighted at 5%.
+    $('breakdown').innerHTML = D.dimensions.map(function(d){
+      var colour = d.value >= 70 ? 'var(--green)' : (d.value >= 35 ? 'var(--blue)' : 'var(--orange)');
+      if (d.value < 10) { colour = 'var(--red)'; }
+      return '<div class="brow"><span class="n">' + esc(d.name) +
+        ' <small style="color:var(--muted)">×' + d.weight.toFixed(2) + '</small></span>' +
+        '<span class="bar"><i style="width:' + Math.max(d.value, 1) + '%;background:' + colour + '"></i></span>' +
+        '<span class="v">' + d.value + '%</span></div>';
+    }).join('');
+
+    // Explanation: the worst dimension's own findings, verbatim from the engine.
+    var worst = D.dimensions.slice().sort(function(a, b){ return a.value - b.value; })[0];
+    $('whyTitle').textContent = 'Why ' + Math.round(D.product.score) + '?';
+    var html = '<p>' + esc(D.explanation) + '</p>';
+    if (worst.findings.length) {
+      html += '<p><b>' + esc(worst.name) + '</b> scores ' + worst.value + '/100: ' +
+        esc(worst.findings[0]) + '</p>';
+    }
+    if (D.comparison) {
+      html += '<p>Re-running the same rule engine on the clip-retained variant <code>' +
+        esc(D.comparison.productId) + '</code> yields <b>' + Math.round(D.comparison.score) +
+        '</b> (disassembly ' + D.comparison.disassembly + '/100). The recommendation is a ' +
+        'counterfactual computed by the engine, not a suggestion from a model.</p>';
+    }
+    html += '<div class="cites">' + D.evidenceSample.map(function(e){
+      return '<span class="cite">' + esc(e.locator) + '</span>';
+    }).join('') + '<span class="cite">rule:' + esc(D.product.rulesetVersion) + '</span></div>';
+    $('why').innerHTML = html;
+
+    $('suppliers').innerHTML = D.suppliers.map(function(s){
+      return '<tr><td><div class="supplier"><span class="av">' + esc(s.initials) + '</span> ' +
+        esc(s.name) + (s.mergedFrom.length ? ' <small style="color:var(--muted)">+' +
+        s.mergedFrom.length + ' merged</small>' : '') + '</div></td>' +
+        '<td>' + esc(s.part) + '</td>' +
+        '<td class="num">' + esc(s.spend) + '</td>' +
+        '<td class="num">' + esc(s.recycled) + '</td>' +
+        '<td class="num">' + esc(s.coverage) + '</td>' +
+        '<td><span class="tag ' + s.qualityTone + '">' + esc(s.quality) + '</span></td>' +
+        '<td><span class="tag ' + s.signalTone + '">' + esc(s.signal) + '</span></td></tr>';
+    }).join('');
+
+    // Recommendations. Rendered only when `cirquento recommend` has produced
+    // them; an empty panel is better than a fabricated one.
+    if (D.recommendations && D.recommendations.length) {
+      $('recCard').hidden = false;
+      $('recs').innerHTML = D.recommendations.map(function(r){
+        var tag = r.conditional
+          ? '<span class="tag t-orange">conditional</span>'
+          : '<span class="tag t-green">design change</span>';
+        return '<div style="display:grid;grid-template-columns:76px 1fr;gap:16px;padding:14px 0;' +
+          'border-bottom:1px solid var(--border);align-items:start">' +
+          '<div style="text-align:right">' +
+          '<div style="font-size:22px;font-weight:600;color:' +
+          (r.conditional ? 'var(--orange)' : 'var(--green)') + '">+' + r.delta + '</div>' +
+          '<div class="hint" style="font-size:12px">' + r.scoreBefore + ' → ' + r.scoreAfter + '</div>' +
+          '</div><div><div style="font-weight:600;margin-bottom:4px">' + esc(r.action) + ' ' + tag +
+          '</div><div class="hint">' + esc(r.rationale) + '</div>' +
+          '<div class="cites" style="margin-top:6px"><span class="cite">' + r.linesAffected +
+          ' lines</span><span class="cite">' + esc(r.target) + '</span></div></div></div>';
+      }).join('');
+    }
+
+    // Review queue. 812 lines collapse to a handful of distinct unknowns,
+    // which is the only reason a human queue is tractable at all.
+    if (D.review && (D.review.items || []).length) {
+      $('reviewCard').hidden = false;
+      $('reviewBody').innerHTML =
+        '<p>' + D.run.review + ' of ' + D.run.bomLines + ' lines fell below the confidence floor. ' +
+        'Deduplicated by description they become <b>' + (D.review.open + D.review.resolved) +
+        '</b> distinct questions — ' + D.review.open + ' open, ' + D.review.resolved +
+        ' resolved. Resolved answers are exported as golden-set labels, so review effort ' +
+        'improves the evaluation rather than evaporating.</p>' +
+        '<div style="margin-top:10px">' + D.review.items.map(function(i){
+          return '<div style="display:flex;gap:10px;align-items:center;padding:8px 0;' +
+            'border-bottom:1px solid var(--border)">' +
+            '<span class="tag ' + (i.status === 'open' ? 't-orange' : 't-green') + '">' +
+            i.status + '</span><code style="font-size:12px;color:var(--muted)">' + esc(i.id) +
+            '</code><span>' + esc(i.subject) + '</span></div>';
+        }).join('') + '</div>';
+    }
+
+    $('stIngest').textContent = D.run.bomLines + ' rows';
+    $('stBronze').textContent = D.run.distinctRowKeys + ' keys';
+    $('stResolve').textContent = D.run.merges + ' merged';
+    $('stClassify').textContent = D.run.review + ' to review';
+    $('stScore').textContent = 'ruleset ' + D.product.rulesetVersion;
+    $('stPassport').textContent = D.product.contentHash;
+    $('provenance').textContent = 'Generated from run ' + D.run.hash + ' — no hand-written figures.';
+  })();
+  document.querySelectorAll('.nav button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.nav button').forEach(function(x){x.removeAttribute('aria-current')});
+      b.setAttribute('aria-current','true');
+    });
+  });
+</script>
+</body>
+</html>
