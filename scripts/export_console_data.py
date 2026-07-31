@@ -246,6 +246,11 @@ def main() -> int:
         + ";\n",
         encoding="utf-8",
     )
+    
+    payload_out = Path("web/public/payload.json")
+    payload_out.parent.mkdir(parents=True, exist_ok=True)
+    payload_out.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+
     print(
         f"Wrote {args.out} (score {data['product']['score']}, "
         f"{data['run']['bomLines']} lines, "
