@@ -94,6 +94,7 @@ export default function App() {
           </motion.div>
         </div>
 
+        <PlaygroundPanel />
         {/* Dashboard Section */}
         {loading && (
           <div className="flex justify-center items-center h-64">
@@ -205,7 +206,122 @@ export default function App() {
             </div>
           </motion.div>
         )}
+
+      {/* CTA */}
+      <section className="py-32 relative overflow-hidden mt-16 border-t border-white/5">
+        <motion.div
+          animate={{ opacity: [0.2, 0.4, 0.2] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.15),transparent_70%)] pointer-events-none"
+        />
+        <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-5xl font-bold tracking-tight mb-6"
+          >
+            Start classifying with discipline.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-zinc-400 mb-10"
+          >
+            Clone the repo, run the tests, and see the eval gate pass.
+            Zero dependencies. Zero setup. Zero excuses.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <a
+              href="https://github.com/DARREN-2000/cirquento"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white text-black font-semibold px-8 py-3.5 hover:bg-zinc-200 transition-all hover:-translate-y-0.5 shadow-lg"
+            >
+              View on GitHub
+            </a>
+            <div className="inline-flex items-center gap-2 rounded-lg bg-zinc-900/50 border border-white/10 px-6 py-3.5 font-[family-name:var(--font-plex-mono)] text-sm text-zinc-400">
+              make verify
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       </main>
     </div>
   )
+}
+
+
+function PlaygroundPanel() {
+  const [logs, setLogs] = useState<{ text: string; color: string }[]>([
+    { text: "System initialized. Rules engine online.", color: "text-emerald-400" },
+  ]);
+  const [running, setRunning] = useState(false);
+
+  function run() {
+    if (running) return;
+    setRunning(true);
+    setLogs([{ text: "> Parsing BOM payload...", color: "text-emerald-400" }]);
+    setTimeout(() => setLogs((l) => [...l, { text: "  [1] exact_match: False", color: "text-zinc-500" }]), 300);
+    setTimeout(() => setLogs((l) => [...l, { text: "  [2] cache: miss", color: "text-zinc-500" }]), 600);
+    setTimeout(() => setLogs((l) => [...l, { text: "> Escalating to Classification LLM...", color: "text-teal-400" }]), 1200);
+    setTimeout(() => setLogs((l) => [...l, { text: "  [3] model_proposal: MET.ALU.WROUGHT (conf 0.95)", color: "text-zinc-300" }]), 2000);
+    setTimeout(() => setLogs((l) => [...l, { text: "  ✓ classification accepted by gate", color: "text-emerald-400" }]), 2400);
+    setTimeout(() => {
+      setLogs((l) => [
+        ...l,
+        { text: "", color: "" },
+        { text: "=== RESULT ======================", color: "text-teal-400" },
+        { text: "code          : MET.ALU.WROUGHT", color: "text-emerald-400" },
+        { text: "recyclability : 95%", color: "text-emerald-400" },
+        { text: "latency       : 412ms", color: "text-zinc-400" },
+        { text: "llm_used      : true", color: "text-zinc-400" },
+      ]);
+      setRunning(false);
+    }, 3000);
+  }
+
+  return (
+    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-zinc-950/80 rounded-xl border border-white/5 mb-16 shadow-[0_0_40px_rgba(20,184,166,0.1)]">
+      <div className="flex flex-col gap-3">
+        <label className="font-[family-name:var(--font-plex-mono)] text-xs text-teal-400 uppercase tracking-wider">BOM Input Payload</label>
+        <textarea
+          className="flex-1 bg-black/60 border border-white/10 rounded-lg p-4 text-sm text-emerald-400 font-[family-name:var(--font-plex-mono)] resize-none focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 min-h-[200px]"
+          spellCheck={false}
+          defaultValue={`{
+  "description": "ALU EXTR 6060-T6 ANOD housing profile",
+  "uom": "kg",
+  "quantity": 2.5
+}`}
+        />
+        <button
+          onClick={run}
+          disabled={running}
+          className="w-full rounded-lg bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-semibold py-3 hover:-translate-y-0.5 transition-all disabled:opacity-50 shadow-[0_4px_15px_rgba(20,184,166,0.3)]"
+        >
+          {running ? "Executing..." : "Execute Pipeline"}
+        </button>
+      </div>
+      <div className="flex flex-col gap-3">
+        <label className="font-[family-name:var(--font-plex-mono)] text-xs text-teal-400 uppercase tracking-wider">Execution Trace</label>
+        <div className="flex-1 bg-black/60 border border-white/10 rounded-lg p-4 font-[family-name:var(--font-plex-mono)] text-sm overflow-y-auto min-h-[200px]">
+          {logs.map((log, i) => (
+            <div key={i} className={`${log.color} leading-relaxed`}>
+              {log.text || " "}
+            </div>
+          ))}
+          {running && <span className="text-zinc-500 animate-pulse">_</span>}
+        </div>
+      </div>
+    </div>
+  );
 }
