@@ -1,0 +1,36 @@
+{"description": "ALU EXTR 6060-T6 ANOD housing profile", "response": {"code": "MET.ALU.WROUGHT", "confidence": 0.95, "evidence_span": "ALU EXTR 6060-T6 ANO", "reasoning": "Clear match"}}
+{"description": "Aluminium extrusion EN AW-6082 rail", "response": {"code": "MET.ALU.WROUGHT", "confidence": 0.95, "evidence_span": "Aluminium extrusion ", "reasoning": "Clear match"}}
+{"description": "EN AW-6060 profile, mill finish", "response": {"code": "MET.ALU.WROUGHT", "confidence": 0.95, "evidence_span": "EN AW-6060 profile, ", "reasoning": "Clear match"}}
+{"description": "Aluminum extrusion bar, 2m", "response": {"code": "MET.ALU.WROUGHT", "confidence": 0.95, "evidence_span": "Aluminum extrusion b", "reasoning": "Clear match"}}
+{"description": "ALDC12 die cast aluminium end cap", "response": {"code": "MET.ALU.CAST", "confidence": 0.95, "evidence_span": "ALDC12 die cast alum", "reasoning": "Clear match"}}
+{"description": "Die cast aluminium bracket, painted", "response": {"code": "MET.ALU.CAST", "confidence": 0.95, "evidence_span": "Die cast aluminium b", "reasoning": "Clear match"}}
+{"description": "S235JR steel mounting plate", "response": {"code": "MET.STEEL.CARBON", "confidence": 0.95, "evidence_span": "S235JR steel mountin", "reasoning": "Clear match"}}
+{"description": "DC01 cold rolled steel shim", "response": {"code": "MET.STEEL.CARBON", "confidence": 0.95, "evidence_span": "DC01 cold rolled ste", "reasoning": "Clear match"}}
+{"description": "Steel washer, zinc plated", "response": {"code": "MET.STEEL.CARBON", "confidence": 0.95, "evidence_span": "Steel washer, zinc p", "reasoning": "Clear match"}}
+{"description": "Stainless 1.4301 fastener M6", "response": {"code": "MET.STEEL.STAINLESS", "confidence": 0.95, "evidence_span": "Stainless 1.4301 fas", "reasoning": "Clear match"}}
+{"description": "AISI 304 clamp ring", "response": {"code": "MET.STEEL.STAINLESS", "confidence": 0.95, "evidence_span": "AISI 304 clamp ring", "reasoning": "Clear match"}}
+{"description": "Stainless steel spring clip", "response": {"code": "MET.STEEL.STAINLESS", "confidence": 0.95, "evidence_span": "Stainless steel spri", "reasoning": "Clear match"}}
+{"description": "Cu-ETP copper wire harness 2.5mm2", "response": {"code": "MET.CU.WIRE", "confidence": 0.95, "evidence_span": "Cu-ETP copper wire h", "reasoning": "Clear match"}}
+{"description": "Copper wire, tinned, 4mm2", "response": {"code": "MET.CU.WIRE", "confidence": 0.95, "evidence_span": "Copper wire, tinned,", "reasoning": "Clear match"}}
+{"description": "Cable harness, copper conductor", "response": {"code": "MET.CU.WIRE", "confidence": 0.95, "evidence_span": "Cable harness, coppe", "reasoning": "Clear match"}}
+{"description": "PA66-GF30 connector body", "response": {"code": "POL.PA66.GF30", "confidence": 0.95, "evidence_span": "PA66-GF30 connector ", "reasoning": "Clear match"}}
+{"description": "PA66 GF30 housing, black", "response": {"code": "POL.PA66.GF30", "confidence": 0.95, "evidence_span": "PA66 GF30 housing, b", "reasoning": "Clear match"}}
+{"description": "Polyamide 66 glass filled clip", "response": {"code": "POL.PA66.GF30", "confidence": 0.95, "evidence_span": "Polyamide 66 glass f", "reasoning": "Clear match"}}
+{"description": "PA66-GF30 clip-retained potting replacement gasket", "response": {"code": "POL.PA66.GF30", "confidence": 0.95, "evidence_span": "PA66-GF30 clip-retai", "reasoning": "Clear match"}}
+{"description": "PP-T20 cover, talc filled", "response": {"code": "POL.PP.TALC", "confidence": 0.95, "evidence_span": "PP-T20 cover, talc f", "reasoning": "Clear match"}}
+{"description": "Polypropylene cover, 20% talc", "response": {"code": "POL.PP.TALC", "confidence": 0.95, "evidence_span": "Polypropylene cover,", "reasoning": "Clear match"}}
+{"description": "PC/ABS bezel, flame retardant", "response": {"code": "POL.PC.ABS", "confidence": 0.95, "evidence_span": "PC/ABS bezel, flame ", "reasoning": "Clear match"}}
+{"description": "PC/ABS trim panel", "response": {"code": "POL.PC.ABS", "confidence": 0.95, "evidence_span": "PC/ABS trim panel", "reasoning": "Clear match"}}
+{"description": "Epoxy potting compound, power stage", "response": {"code": "THERMOSET.EPOXY", "confidence": 0.95, "evidence_span": "Epoxy potting compou", "reasoning": "Clear match"}}
+{"description": "Epoxy adhesive, two component", "response": {"code": "THERMOSET.EPOXY", "confidence": 0.95, "evidence_span": "Epoxy adhesive, two ", "reasoning": "Clear match"}}
+{"description": "Potting resin for power module", "response": {"code": "THERMOSET.EPOXY", "confidence": 0.95, "evidence_span": "Potting resin for po", "reasoning": "Clear match"}}
+{"description": "PCB assembly, 6-layer control board", "response": {"code": "ELEC.PCBA", "confidence": 0.95, "evidence_span": "PCB assembly, 6-laye", "reasoning": "Clear match"}}
+{"description": "PCB assembly, 6-layer control board, clip-retained", "response": {"code": "ELEC.PCBA", "confidence": 0.95, "evidence_span": "PCB assembly, 6-laye", "reasoning": "Clear match"}}
+{"description": "PCBA gate driver, conformal coated", "response": {"code": "ELEC.PCBA", "confidence": 0.95, "evidence_span": "PCBA gate driver, co", "reasoning": "Clear match"}}
+{"description": "MOSFET power module TO-247", "response": {"code": "ELEC.SEMI", "confidence": 0.95, "evidence_span": "MOSFET power module ", "reasoning": "Clear match"}}
+{"description": "Semiconductor diode, SiC", "response": {"code": "ELEC.SEMI", "confidence": 0.95, "evidence_span": "Semiconductor diode,", "reasoning": "Clear match"}}
+{"description": "Carbon fibre reinforced panel", "response": {"code": "COMPOSITE.CFRP", "confidence": 0.95, "evidence_span": "Carbon fibre reinfor", "reasoning": "Clear match"}}
+{"description": "SPEZTL-KOMP 44/B ers. 21.09", "response": {"code": null, "confidence": 0.0, "evidence_span": "", "reasoning": "Abstain for ambiguous"}}
+{"description": "Baugruppe kpl. n. Zeichnung 4470-2", "response": {"code": null, "confidence": 0.0, "evidence_span": "", "reasoning": "Abstain for ambiguous"}}
+{"description": "Pos. 44 gem. ZG 8812/2 rev C", "response": {"code": null, "confidence": 0.0, "evidence_span": "", "reasoning": "Abstain for ambiguous"}}
+{"description": "Sonderteil n. Muster, freigegeben KW32", "response": {"code": null, "confidence": 0.0, "evidence_span": "", "reasoning": "Abstain for ambiguous"}}
