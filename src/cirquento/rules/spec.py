@@ -17,12 +17,16 @@ from typing import Any, Mapping
 try:  # pyyaml is the normal path
     import yaml
 
-    def _parse(text: str) -> dict[str, Any]:
-        return yaml.safe_load(text)
+    def _parse(path: Path) -> dict[str, Any]:
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 except ModuleNotFoundError:  # pragma: no cover - tiny fallback parser
-    def _parse(text: str) -> dict[str, Any]:
-        raise RuntimeError("pyyaml is required to load rule sets")
+    def _parse(path: Path) -> dict[str, Any]:
+        import json
+        json_path = path.with_suffix(".json")
+        if json_path.exists():
+            return json.loads(json_path.read_text(encoding="utf-8"))
+        raise RuntimeError("pyyaml is required to load YAML rule sets (or provide a .json fallback)")
 
 
 class ScoreDimension(StrEnum):
@@ -51,7 +55,7 @@ class RuleSet:
 
     @classmethod
     def load(cls, path: str | Path) -> "RuleSet":
-        raw = _parse(Path(path).read_text(encoding="utf-8"))
+        raw = _parse(Path(path))
         return cls(
             version=raw["version"],
             effective_from=str(raw.get("effective_from", "")),
