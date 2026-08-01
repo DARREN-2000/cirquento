@@ -1,231 +1,211 @@
-import { useEffect, useState } from 'react';
-import './index.css';
+import { useEffect, useState } from "react"
+import { motion, type Variants } from "framer-motion"
+import { ShieldCheck, Activity, Box, ArrowRight, Zap, RefreshCw } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card"
+import { Badge } from "./components/ui/badge"
+import { Progress } from "./components/ui/progress"
+
+interface PayloadData {
+  comparison: {
+    delta: number;
+    disassembly: number;
+    score: number;
+    productId: string;
+  };
+  composition: Array<{
+    code: string;
+    pct: number;
+  }>;
+}
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 24 }
+  }
+}
 
 export default function App() {
-  const [data, setData] = useState<any>(null);
-  const [view, setView] = useState<'dashboard' | 'materials' | 'suppliers' | 'playground'>('dashboard');
-  
-  const [pgInput, setPgInput] = useState('{\n  "product_id": "TEST-100",\n  "description": "Aluminum chassis frame, anodized 6061-T6",\n  "mass_kg": 4.5,\n  "recycled_fraction": 0.4,\n  "joining_method": "bolted",\n  "supplier_name": "AluCorp Global"\n}');
-  const [pgResult, setPgResult] = useState<any>(null);
-  const [pgLoading, setPgLoading] = useState(false);
-  const [pgError, setPgError] = useState('');
+  const [data, setData] = useState<PayloadData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(import.meta.env.BASE_URL + 'payload.json')
-      .then(r => r.json())
-      .then(setData)
-      .catch(console.error);
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}payload.json`);
+        if (!response.ok) throw new Error("Failed to load payload");
+        const json = await response.json();
+        setData(json);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  if (!data) return <div style={{padding: 40}}>Loading Control Plane...</div>;
-
-  const runInference = () => {
-    setPgError('');
-    setPgResult(null);
-    setPgLoading(true);
-    setTimeout(() => {
-      setPgLoading(false);
-      try {
-        const val = JSON.parse(pgInput);
-        const score = 70 + Math.floor(Math.random() * 20);
-        setPgResult({
-          "@context": "https://schema.org/",
-          "@type": "Product",
-          "productID": val.product_id || "TEST-100",
-          "circularityScore": score,
-          "classification": {
-            "source": "LLM_INFERENCE",
-            "confidence": 0.94,
-            "materialCode": "AL-6061-T6"
-          },
-          "ruleEngine": {
-            "recycledContentScore": (val.recycled_fraction || 0) * 100,
-            "disassemblyScore": val.joining_method === "bolted" ? 100 : 40
-          },
-          "supplierExposure": "Low Risk",
-          "timestamp": new Date().toISOString()
-        });
-      } catch (err) {
-        setPgError('Error: Invalid JSON format.');
-      }
-    }, 1200);
-  };
-
-  const k = data.kpis;
-  const worst = [...data.dimensions].sort((a,b) => a.value - b.value)[0];
-
   return (
-    <div className="wrap">
-      {/* Topbar */}
-      <div className="topbar">
-        <div className="brand">
-          <svg className="mark" viewBox="0 0 32 32" aria-hidden="true">
-            <circle cx="16" cy="16" r="13" fill="none" stroke="var(--border)" strokeWidth="3"/>
-            <path d="M16 3a13 13 0 0 1 11.3 19.4" fill="none" stroke="var(--blue)" strokeWidth="3" strokeLinecap="round"/>
-            <circle cx="16" cy="16" r="4.2" fill="var(--green)"/>
-          </svg>
-          <div>Cirquento<small>Inference Control Plane</small></div>
+    <div className="min-h-screen relative overflow-hidden flex flex-col">
+      {/* Glow effects */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-900/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-900/20 blur-[120px] rounded-full pointer-events-none" />
+      
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 glass border-b border-white/5 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <RefreshCw className="w-5 h-5 text-white" />
+          </div>
+          <span className="font-bold tracking-tight text-xl">Cirquento</span>
         </div>
-        <nav className="nav">
-          <button aria-current={view === 'dashboard'} onClick={() => setView('dashboard')}>Dashboard</button>
-          <button aria-current={view === 'materials'} onClick={() => setView('materials')}>Materials</button>
-          <button aria-current={view === 'suppliers'} onClick={() => setView('suppliers')}>Suppliers</button>
-          <button className="btn-playground" aria-current={view === 'playground'} onClick={() => setView('playground')}>
-            <svg style={{width: 14, height: 14, verticalAlign: -2, marginRight: 4}} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            Playground
-          </button>
-        </nav>
-      </div>
+        <Badge variant="secondary" className="px-3 py-1">Enterprise Pipeline</Badge>
+      </header>
 
-      {view !== 'playground' ? (
-        <div id="dashboardView">
-          <div className="head">
-            <div>
-              <h1>{data.product.name} · {data.product.id}</h1>
-              <p className="sub">Digital Product Passport built from {data.run.bomLines} BOM lines across 4 products, {data.product.lines} of them on this product ({data.product.massKg.toFixed(1)} kg). Every field is traceable to a source row.</p>
-            </div>
-            <div className="runpill"><span className="dot"></span> <span>run {data.run.hash} · ruleset {data.product.rulesetVersion} · {data.run.distinctRowKeys}/{data.run.bomLines} rows keyed</span></div>
+      {/* Hero Section */}
+      <main className="flex-1 pt-32 pb-16 px-6 lg:px-8 max-w-7xl mx-auto w-full z-10">
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge variant="default" className="mb-4">v2.0 Active</Badge>
+            <h1 className="text-5xl lg:text-7xl font-bold tracking-tight mb-6">
+              The Enterprise <br />
+              <span className="text-gradient-primary">Circularity Pipeline</span>
+            </h1>
+            <p className="text-zinc-400 text-lg lg:text-xl leading-relaxed">
+              Material classification and circularity intelligence for manufacturing BOMs. Seamlessly analyze composition, assess disassembly factors, and optimize your production lifecycle.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Dashboard Section */}
+        {loading && (
+          <div className="flex justify-center items-center h-64">
+            <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
           </div>
+        )}
 
-          <div className="kpis">
-            <div className="kpi">
-              <div className="label">Circularity score</div>
-              <div className="val">{k.score}</div>
-              <div className="foot">ruleset {data.product.rulesetVersion}</div>
-            </div>
-            <div className="kpi">
-              <div className="label">Recycled content</div>
-              <div className="val">{k.recycledContent}<span>%</span></div>
-              <div className="foot">{k.missingRecycled} lines lack evidence</div>
-            </div>
-            <div className="kpi">
-              <div className="label">Lines classified</div>
-              <div className="val">{k.classifiedPct}<span>%</span></div>
-              <div className="foot">{data.run.deterministic} by rule, {data.run.model} by model</div>
-            </div>
-            <div className="kpi">
-              <div className="label">Unclassified lines</div>
-              <div className="val warn">{k.openGaps}</div>
-              <div className="foot">held for human review</div>
-            </div>
-          </div>
+        {error && (
+          <Card className="border-red-500/20 bg-red-500/5">
+            <CardContent className="pt-6 flex flex-col items-center text-center text-red-400">
+              <Zap className="w-12 h-12 mb-4 opacity-50" />
+              <p>Failed to load circularity data.</p>
+              <p className="text-sm opacity-70">{error}</p>
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="grid">
-            <section className="card">
-              <header><h2>Passport readiness</h2><span className="hint">ESPR / EN 18223</span></header>
-              <div className="body pp" style={{alignItems: 'flex-start'}}>
-                <div className="score">
-                  <svg viewBox="0 0 120 120" width="140" height="140">
-                    <circle cx="60" cy="60" r="50" fill="none" stroke="var(--surface2)" strokeWidth="12"/>
-                    <circle className="ring" cx="60" cy="60" r="50" fill="none" stroke="url(#grad)" strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(314 * data.product.score) / 100} 314`} transform="rotate(-90 60 60)"></circle>
-                    <defs>
-                      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="var(--blue)" />
-                        <stop offset="100%" stopColor="var(--green)" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="num"><b>{Math.round(data.product.score)}</b><i>score</i></div>
-                </div>
-                <div className="breakdown">
-                  {data.dimensions.map((d: any) => {
-                    const color = d.value >= 70 ? 'var(--green)' : d.value >= 35 ? 'var(--blue)' : 'var(--orange)';
-                    return (
-                      <div className="brow" key={d.name}>
-                        <span className="n">{d.name} <small style={{color:'var(--muted)'}}>×{d.weight.toFixed(2)}</small></span>
-                        <span className="bar"><i style={{width: Math.max(d.value, 1) + '%', background: d.value < 10 ? 'var(--red)' : color}}></i></span>
-                        <span className="v">{d.value}%</span>
+        {data && (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          >
+            {/* Overview Column */}
+            <div className="lg:col-span-1 space-y-6">
+              <motion.div variants={itemVariants}>
+                <Card className="h-full bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 border-blue-500/20 shadow-[0_0_30px_rgba(59,130,246,0.1)] relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px]" />
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-zinc-200">
+                      <Box className="w-5 h-5 text-blue-400" />
+                      Product Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div>
+                      <p className="text-sm text-zinc-500 font-medium mb-1">Product ID</p>
+                      <p className="text-2xl font-mono text-zinc-100">{data.comparison.productId}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-end">
+                        <p className="text-sm text-zinc-500 font-medium">Circularity Score</p>
+                        <p className="text-3xl font-bold text-gradient-primary">{data.comparison.score.toFixed(1)}</p>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
+                      <Progress value={data.comparison.score} className="h-2.5" />
+                    </div>
 
-            <section className="card">
-              <header><h2>Why?</h2><span className="hint">derived from the rule engine</span></header>
-              <div className="body">
-                <div className="ev">
-                  <p>{data.explanation}</p>
-                  {worst.findings.length > 0 && <p><b>{worst.name}</b> scores {worst.value}/100: {worst.findings[0]}</p>}
-                  <div className="cites">
-                    {data.evidenceSample.map((e: any) => <span className="cite" key={e.locator}>{e.locator}</span>)}
-                    <span className="cite">rule:{data.product.rulesetVersion}</span>
-                  </div>
-                </div>
-              </div>
-            </section>
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                      <div>
+                        <p className="text-sm text-zinc-500 font-medium mb-1 flex items-center gap-1">
+                          <Activity className="w-4 h-4" /> Delta
+                        </p>
+                        <p className="text-xl font-semibold text-emerald-400">
+                          {data.comparison.delta > 0 ? "+" : ""}{data.comparison.delta}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-zinc-500 font-medium mb-1 flex items-center gap-1">
+                          <ShieldCheck className="w-4 h-4" /> Disassembly
+                        </p>
+                        <p className="text-xl font-semibold text-blue-400">
+                          {data.comparison.disassembly}/100
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
 
-            <section className="card" style={{gridColumn: '1 / -1'}}>
-              <header><h2>Supplier signals</h2><span className="hint">ranked by circularity exposure × spend</span></header>
-              <div className="body scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Supplier</th><th>Dominant part</th><th className="num">Spend</th>
-                      <th className="num">Recycled</th><th className="num">Evidence</th><th>Data quality</th><th>Signal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.suppliers.map((s: any) => (
-                      <tr key={s.name}>
-                        <td><div className="supplier"><span className="av">{s.initials}</span> {s.name}</div></td>
-                        <td>{s.part}</td>
-                        <td className="num">{s.spend}</td>
-                        <td className="num">{s.recycled}</td>
-                        <td className="num">{s.coverage}</td>
-                        <td><span className={`tag ${s.qualityTone}`}>{s.quality}</span></td>
-                        <td><span className={`tag ${s.signalTone}`}>{s.signal}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-        </div>
-      ) : (
-        <div id="playgroundView" className="playground-view">
-          <div className="head">
-            <div>
-              <h1>Inference Playground</h1>
-              <p className="sub">Test the LLM classification and deterministic rule engine live against custom BOM inputs.</p>
+            {/* Composition Column */}
+            <div className="lg:col-span-2">
+              <motion.div variants={itemVariants} className="h-full">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="text-zinc-200">Material Composition</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {data.composition.map((item, idx) => (
+                        <motion.div
+                          key={idx}
+                          variants={itemVariants}
+                          className="flex items-center gap-4 p-4 rounded-lg bg-zinc-900/50 border border-white/5 hover:bg-zinc-800/50 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-mono text-xs text-zinc-400 border border-white/5">
+                            {String(idx + 1).padStart(2, '0')}
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-2">
+                              <span className="font-medium text-zinc-200">{item.code}</span>
+                              <span className="font-mono text-sm text-zinc-400">{item.pct.toFixed(2)}%</span>
+                            </div>
+                            <Progress value={item.pct} />
+                          </div>
+                          
+                          <div className="ml-4 opacity-0 hover:opacity-100 transition-opacity cursor-pointer text-zinc-500 hover:text-zinc-300">
+                            <ArrowRight className="w-5 h-5" />
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
-          </div>
-          <div className="pg-container">
-            <div className="pg-panel">
-              <h3>Input JSON <span>Product component definition</span></h3>
-              <textarea className="pg-input" value={pgInput} onChange={e => setPgInput(e.target.value)}></textarea>
-              <div className="pg-controls">
-                <button className="pg-btn" onClick={runInference} disabled={pgLoading}>Run Inference</button>
-              </div>
-            </div>
-            
-            <div className="pg-panel">
-              <h3>Pipeline Output <span>JSON-LD Passport</span></h3>
-              <div className="pg-output">
-                {pgLoading && <div className="loader"></div>}
-                {pgError && <span style={{color:'var(--red)'}}>{pgError}</span>}
-                {!pgLoading && !pgError && pgResult && (
-                  <>
-                    <span style={{color:'var(--green)', fontWeight:600}}>✓ Inference Complete ({pgResult.circularityScore}/100)</span>
-                    <pre style={{margin: '12px 0 0 0', fontFamily: 'var(--mono)'}}>{JSON.stringify(pgResult, null, 2)}</pre>
-                  </>
-                )}
-                {!pgLoading && !pgError && !pgResult && (
-                  <span style={{color:'var(--muted)'}}>Hit "Run Inference" to compute circularity score...</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="foot">
-        <span>Cirquento v0.4</span>
-        <span>FastAPI · DuckDB · Postgres · OpenTelemetry</span>
-        <span>Generated from run {data.run.hash}</span>
-      </div>
+          </motion.div>
+        )}
+      </main>
     </div>
-  );
+  )
 }

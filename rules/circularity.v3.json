@@ -1,0 +1,57 @@
+{
+  "version": "circularity.v3",
+  "effective_from": "2026-07-01",
+  "basis": [
+    "ESPR (EU) 2024/1781 \u2014 Ecodesign for Sustainable Products Regulation",
+    "EN 45555 \u2014 general methods for assessing recyclability",
+    "prEN 18223 \u2014 Digital Product Passport data carrier & field groups"
+  ],
+  "weights": {
+    "recycled_content": 0.3,
+    "recyclability": 0.3,
+    "disassembly": 0.25,
+    "substances": 0.15
+  },
+  "separability_floor": 50,
+  "joints": {
+    "screw": 100,
+    "clip": 90,
+    "press_fit": 75,
+    "rivet": 45,
+    "weld": 30,
+    "adhesive": 20,
+    "potting": 5
+  },
+  "recyclability": {
+    "MET.ALU.WROUGHT": 95,
+    "MET.ALU.CAST": 85,
+    "MET.STEEL.CARBON": 95,
+    "MET.STEEL.STAINLESS": 90,
+    "MET.CU.WIRE": 92,
+    "POL.PA66.GF30": 45,
+    "POL.PP.TALC": 60,
+    "POL.ABS": 55,
+    "POL.PC.ABS": 40,
+    "THERMOSET.EPOXY": 5,
+    "ELEC.PCBA": 35,
+    "ELEC.SEMI": 25,
+    "COMPOSITE.CFRP": 10
+  },
+  "substance_penalty": 20,
+  "substances_of_concern": [
+    "SVHC.PFOA",
+    "SVHC.DEHP",
+    "SVHC.LEAD_COMPOUNDS",
+    "SVHC.SCCP",
+    "SVHC.BPA",
+    "RoHS.CD",
+    "RoHS.HG",
+    "RoHS.CR6"
+  ],
+  "data_quality": {
+    "primary_verified": 1.0,
+    "primary_unverified": 0.85,
+    "secondary": 0.65,
+    "proxy": 0.4
+  }
+}
