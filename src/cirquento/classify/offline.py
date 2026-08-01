@@ -17,7 +17,18 @@ import json
 from pathlib import Path
 from typing import Mapping
 
-from pydantic import BaseModel
+try:
+    from pydantic import BaseModel
+except ImportError:
+    # Zero-dependency fallback: the offline backend uses model_validate()
+    # but only with simple dicts, so a thin wrapper suffices.
+    class BaseModel:  # type: ignore[no-redef]
+        @classmethod
+        def model_validate(cls, data: object) -> "BaseModel":
+            obj = cls.__new__(cls)
+            if isinstance(data, dict):
+                obj.__dict__.update(data)
+            return obj
 
 from cirquento.classify.taxonomy import Taxonomy, TaxonomyCode
 
